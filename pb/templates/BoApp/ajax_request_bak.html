@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+{% load static %} <!-- 模板标签加载静态文件路径，也可以改成 load staticfiles -->
+<html>
+<head>
+    <title>HelloDjango</title>
+    <script type="text/javascript" src="http://libs.baidu.com/jquery/1.11.1/jquery.min.js"></script><!-- 这里引入的是百度的 JQuery -->
+    <script type="text/javascript" src="{% static 'js/ajax_request.js' %}"></script> <!-- 我们 get post 请求需要使用的自定义 js -->
+</head>
+<body>
+ <h3>GET 提交数据：</h3>
+    <input type="number" id="num1" />&nbsp;*&nbsp;
+    <input type="number" id="num2" />
+    <button onclick="fun_get();">&nbsp;=&nbsp;</button>
+    <font style="color:red;"><span id="result_get"></span></font>
+    <hr />
+    <input type="search" id="searchInput" style="width:600px;height:30px;margin-top:10px;text-align:left" />
+    <button onclick="searchfilm();" style="height:30px">提交</button><br>
+    <font style="color:red;"><span id="result_get2"></span></font>
+ <script>
+
+function fun_get() {
+    var a = $("#num1").val();
+    console.log(a);
+    var b = $("#num2").val();
+    console.log(b);
+    $.get("/boapp/ajax/get/", { 'a': a, 'b': b }, function(ret){
+        $('#result_get').html(ret);
+    });
+}
+function searchfilm(){
+        var searchfn = $("#searchInput").val();
+        console.log(searchfn);
+        $.get("/boapp/ajax/get/", {'searchfn': searchfn}, function(ret){
+        $('#result_get').html(ret);
+        });
+}
+ </script>
+</body>
+</html>

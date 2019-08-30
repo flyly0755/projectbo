@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>日历信息</title>
+    <style>
+        * {
+            padding:0;
+            margin:0;
+            text-align:center;
+        }
+        .wrap {
+            width:1200px;
+            margin:10px auto 0;
+        }
+        table {
+            border-collapse:collapse;
+            border-spacing:0;
+            border: 1px solid #c0c0c0;
+            width: 1200px;
+        }
+        th,
+        td {
+            border: 1px solid #d0d0d0;
+            color: #404060;
+            padding: 10px;
+        }
+        th {
+            background-color:#09c;
+            font: bold 16px "微软雅黑";
+            color: #fff;
+        }
+        td {
+            font:14 px "微软雅黑";
+        }
+        tbody tr {
+            background-color: #f0f0f0;
+            cursor:pointer;
+        }
+        .arrow {
+            display: inline-block;
+            vertical-align: middle;
+            width: 3px;
+            height: 3px;
+            margin-left: 2px;
+            opacity: 0.66;
+
+        }
+
+        .arrow.asc {
+
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            //border-left: 4px solid;
+            //border-right: 4px solid;
+            border-bottom: 10px solid #fff;
+        }
+
+        .arrow.dsc {
+            border-left: 4px solid transparent;
+            border-right: 4px solid transparent;
+            border-top: 4px solid #fff;
+        }
+
+    </style>
+    <script type="text/javascript" src="../../static/js/unf.js"></script>
+    <script type="text/javascript" src="../../static/js/jquery-1.11.1.min.js"></script>
+</head>
+<body>
+    <h1>每日电影票房大盘</h1>
+    <div class="wrap" align="center">
+        <table style="margin-top:25px" align="center">
+            <thead>
+                <tr>
+                    <th>阳历</th>
+                    <th>年份</th>
+                    <th>月份</th>
+                    <th>日</th>
+                    <th>班休</th>
+                    <th>星期</th>
+                    <th>节日</th>
+                    <th>假期</th>
+                    <th>农历</th>
+                    <th>农历月</th>
+                    <th>农历日</th>
+                </tr>
+            </thead>
+            <tbody id="target">
+                {%for item in givenpage%}
+                <tr>
+                    <td>{{item.solarcalendar|date:"Y-m-d"}}</td>
+                    <td>{{item.year}}</td>
+                    <td>{{item.month}}</td>
+                    <td>{{item.day}}</td>
+                    <td>{{item.woc}}</td>
+                    <td>{{item.weekday}}</td>
+                    <td>{{item.specialday}}</td>
+                    <td>{{item.festival}}</td>
+                    <td>{{item.lunarcalendar}}</td>
+                    <td>{{item.lunarcalendarmonth}}</td>
+                    <td>{{item.lunarcalendarday}}</td>
+                   </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+        <span class="step-links">
+            {% if givenpage.has_previous %}
+                <a href="?page={{ givenpage.previous_page_number }}">上页</a>
+            {% endif %}
+
+            <span class="current">
+                第{{ givenpage.number }}页 共{{ givenpage.paginator.num_pages }}页
+            </span>
+
+            {% if givenpage.has_next %}
+                <a href="?page={{ givenpage.next_page_number }}">下页</a>
+                <a href="?page={{ givenpage.paginator.num_pages }}">末页</a>
+            {% endif %}
+        </span>
+    </div><br/><br/><br/>
+<script>
+        if($(this).hasClass('arrow asc')){
+        $(this).removeClass('arrow asc').addClass('arrow desc');
+        //收起
+        }else{
+        $(this).removeClass('arrow desc').addClass('arrow asc');
+        //arr1 = splitstr({{item.festival}});
+        //console.log("arr1的值：",arr1);
+
+        //需求：让tr各行变色，鼠标放入tr中，高亮显示。
+
+        //1.隔行变色。
+        var tbody = document.getElementById("target");
+        var trArr = tbody.children;
+        //循环判断并各行赋值属性（背景色）
+        for(var i=0;i<trArr.length;i++){
+            if(i%2!==0){
+                trArr[i].style.backgroundColor = "#a3a3a3";
+            }else{
+                trArr[i].style.backgroundColor = "#ccc";
+            }
+
+            //鼠标进入高亮显示
+            //难点：鼠标移开的时候要回复原始颜色。
+            //计数器（进入tr之后，立刻记录颜色，然后移开的时候使用记录好的颜色）
+            var color = "";
+            trArr[i].onmouseover = function () {
+                //赋值颜色之前，先记录颜色
+                color = this.style.backgroundColor;
+                this.style.backgroundColor = "#fff";
+            }
+            trArr[i].onmouseout = function () {
+                this.style.backgroundColor = color;
+            }
+        }
+    </script>
+</body>
+</html>
+

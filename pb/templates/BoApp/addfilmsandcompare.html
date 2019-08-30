@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+{% load static %} <!-- 模板标签加载静态文件路径，也可以改成 load staticfiles -->
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>影片票房对比</title>
+    <style>
+        * {
+            padding:0;
+            margin:0;
+            text-align:center;
+        }
+        .wrap {
+            text-align: center;
+            width:auto;
+            margin:10px auto 0;
+        }
+        .wrap1 {
+            width:800px;
+            margin:10px auto 0;
+        }
+        table {
+            border-collapse:collapse;
+            border-spacing:0;
+            border: 1px solid #c0c0c0;
+            width: auto;
+        }
+        th,
+        td {
+            border: 1px solid #d0d0d0;
+            color: #404060;
+            padding: 10px;
+        }
+        th {
+            background-color:#09c;
+            font: bold 16px "微软雅黑";
+            color: #fff;
+        }
+        td {
+            font:14 px "微软雅黑";
+        }
+        tbody tr {
+            background-color: #f0f0f0;
+            cursor:pointer;
+        }
+        .current {
+            background-color: red!important;
+        }
+
+    </style>
+</head>
+<body style="text-align:center">
+    <h1>影片票房对比</h1>
+    <div>
+    <div class="searchclass">
+        <!--<input type="search" class="header_search" id="searchInput" placeholder="输入影片名" style="width:600px;height:30px;margin:10px;text-align:left"\-->
+               <!--onfocus="javascript:if(this.value=='输入影片名')this.value='';"/>-->
+        <input type="search" id="searchInput" style="width:600px;height:30px;margin:10px;text-align:left" />
+        <p onclick="jsnewplot();"><button onclick="searchfilm();" style="height:30px">提交</button></p><br>
+        <font style="font-weight:bold;"><span id="result_get"></span></font><br>
+        <font style="color:red;"><span id="result_gete"></span></font>
+
+    </div>
+    </div>
+    <div id="tester"  class="wrap1" style="width:1200px;height:400px"></div>
+    <div class="wrap">
+        <table style="margin-top:25px;display:none;" id="botable">
+            <thead>
+                <tr id="trid">
+                    <th id="thid">上映天数</th>
+                </tr>
+            </thead>
+            <tbody id="target">
+            </tbody>
+        </table>
+    </div>
+    <script src="../../../static/js/plotly-basic.min.js"></script>
+    <!--<script type="text/javascript" src="http://libs.baidu.com/jquery/1.11.1/jquery.min.js"></script>-->
+    <script type="text/javascript" src="{% static 'js/ajax_request.js' %}"></script>
+    <script src="../../../static/js/jquery-1.11.1.min.js"></script>
+    <script>
+        function rowwithdfcolour(){
+        //需求：让tr各行变色，鼠标放入tr中，高亮显示。
+        //1.隔行变色。
+        var tbody = document.getElementById("target");
+        var trArr = tbody.children;
+        //循环判断并各行赋值属性（背景色）
+        for(var i=0;i<trArr.length;i++){
+            if(i%2!==0){
+                trArr[i].style.backgroundColor = "#a3a3a3";
+            }else{
+                trArr[i].style.backgroundColor = "#ccc";
+            }
+
+            //鼠标进入高亮显示
+            //难点：鼠标移开的时候要回复原始颜色。
+            //计数器（进入tr之后，立刻记录颜色，然后移开的时候使用记录好的颜色）
+            var color = "";
+            trArr[i].onmouseover = function () {
+                //赋值颜色之前，先记录颜色
+                color = this.style.backgroundColor;
+                this.style.backgroundColor = "#fff";
+            }
+            trArr[i].onmouseout = function () {
+                this.style.backgroundColor = color;
+            }
+        }
+        }
+        window.j=1;
+        var filmnames = new Array;
+        var retjson;
+        function searchfilm(){
+            var searchfn = $("#searchInput").val();
+            console.log(searchfn);
+            $.get("/boapp/addfilmsandcompare/get/", {'searchfn': searchfn}, function(ret){
+                if (ret!="该电影不存在，请重新查询！") {
+                    retjson=JSON.parse(ret);
+                    for(var k = 0; k < window.j; k++){
+                        if(retjson[0].filmname==filmnames[k]){
+                            $('#result_gete').html("该电影票房数据已查询出，并已显示在网页上，请勿重复查询！");
+                            console.log("该电影票房数据已查询出，并已显示在网页上，请勿重复查询！")
+                            return false;
+                        }
+                    }
+                    <!--console.log("retjson类型是"+typeof retjson)-->
+                    <!--console.log("retjson[0] is"+ retjson[0])-->
+                    <!--console.log("retjson[0].filmname is"+ retjson[0].filmname)-->
+                    $('#result_get').append(window.j+"."+retjson[0].filmname+" ");
+                    $('#result_gete').html("");
+                    //表格呈现数据
+                    var code = '';
+                    var div1 = document.getElementById("target");
+                    var div2 = document.getElementById("botable");
+                    // console.log(div1);
+                    // var rows = retjson.length;
+                    var rows = 30;
+                    $("#trid").append("<th>#"+window.j+"电影上映日期</th>");
+                    $("#trid").append("<th>#"+window.j+"电影日票房</th>");
+                    if(div2.style.display=="none"){
+                        for (var i = 0,y=0; i < rows; i++) {
+                            if(i+1!=retjson[y].releasedays){
+                                //$("tr").eq(i+1).append("<tr><td></td><td></td></tr>");
+                                // $("tr").eq(i+1).append("<td></td>");
+                                code +="<tr><td>"+(i+1)+"</td><td></td><td></td></tr>";  
+                                
+                            }
+                            else {
+                               <!--#code += "<tr><td>" +retjson[i].filmname+"</td> <td>" + retjson[i].yearmonthday +"</td> <td>" + retjson[i].releasedays +"</td> <td>"+retjson[i].daybo+"</td></tr>";-->
+                                code +="<tr><td>" +retjson[y].releasedays+"</td> <td>" + retjson[y].yearmonthday +"</td> <td>"+retjson[y].daybo+"</td></tr>"; 
+                                y++;
+                            }
+                        
+                        }
+                        div1.innerHTML = code;
+                        div2.style.display = "inline-table";
+                    }
+                    else {
+                        for (var i = 0,x=0; i < rows; i++){
+                            // console.log("i+1:"+(i+1));
+                            // console.log(retjson[i]);
+                            // console.log("releasedays/1:"+(retjson[i].releasedays/1));
+                            if(i+1!=retjson[x].releasedays){
+                                $("tr").eq(i+1).append("<td></td>");
+                                $("tr").eq(i+1).append("<td></td>"); 
+                                
+                            }
+                            else{
+                                $("tr").eq(i+1).append("<td>"+retjson[x].yearmonthday+"</td>");
+                                $("tr").eq(i+1).append("<td>"+retjson[x].daybo+"</td>");  
+                                x++;
+                            }
+                            
+                        }
+                        }
+                    filmnames[window.j-1] = retjson[0].filmname;
+                    window.j++;
+                    rowwithdfcolour();
+                    jsnewplot(retjson);
+                    // if(window.j==2){
+                    //     var retdata=[];
+                    // }
+                    // else {}
+                    // var retdata=jsnewplot(retjson);
+                    // return retjson;
+                    }
+                else {$('#result_gete').html(ret);
+                      return ret;
+                        }
+                });
+                <!--if (ret!='该电影不存在，请重新查询！'){return retjson;}-->
+                <!--else {return ret;}-->
+            }
+        var data = new Array;    
+        function jsnewplot(jsondata) { 
+        x=new Array;
+        y=new Array;
+        ymdarray= new Array;
+        for(i in jsondata){
+            x[i]=jsondata[i].releasedays;
+            y[i]=jsondata[i].daybo;
+            ymdarray[i]=jsondata[i].yearmonthday;
+            if(i==0){
+                var filmname =jsondata[i].filmname;
+            }
+            // console.log(i+jsondata[i].filmname);
+            }
+            var trace = {
+              x: x,
+              y: y,
+              name: filmname,
+              type: 'scatter',
+              hovertext:ymdarray
+            };
+        data.push(trace);
+        var layout = {
+          title: '影片票房对比',
+          xaxis: {title: '上映天数'},
+          yaxis: {title: '票房'}
+        };
+        Plotly.newPlot('tester', data, layout);
+        return data;
+        }
+    </script>
+</body>
+</html>
+

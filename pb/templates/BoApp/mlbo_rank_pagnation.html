@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>票房排名</title><style type="text/css">
+    body{
+    }
+    //新增
+    table .table-striped{
+        border-collapse:collapse;
+            border-spacing:0;
+            border: 1px solid #c0c0c0;
+            width: 500px;
+    }
+    table th{
+        text-align: left;
+        height: 30px;
+        background: #09c;
+        padding: 5px;
+        margin: 0;
+        border: 0px;
+        //新增
+        color: #404060;
+    }
+    table td{
+        /*text-align: left;*/
+        height:30px;
+        margin: 0;
+        padding: 5px;
+        border:0px;
+        #新增
+        color: #404060;
+    }
+    table tr:hover{
+        background: #f0f0f0;
+        cursor:pointer;
+    }
+    .span6{
+        /*width:500px;*/
+        float:inherit;
+        margin:10px;
+    }
+    #pagiDiv span{
+        background:#1e90ff;
+        border-radius: .2em;
+        padding:5px;
+    }
+</style>
+    <script type="text/javascript" src="../../static/js/pagination.js"></script>
+    <script type="text/javascript" src="../../static/js/jquery-1.11.1.min.js"></script>
+    <script type="text/javascript">
+        //全局变量
+        var numCount;       //数据总数量
+        var columnsCounts;  //数据列数量
+        var pageCount;      //每页显示的数量
+        var pageNum;        //总页数
+        var currPageNum ;   //当前页数
+
+        //页面标签变量
+        var blockTable;
+        var preSpan;
+        var firstSpan;
+        var nextSpan;
+        var lastSpan;
+        var pageNumSpan;
+        var currPageSpan;
+
+
+
+        window.onload=function(){
+            //页面标签变量
+            blockTable = document.getElementById("blocks");
+            preSpan = document.getElementById("spanPre");
+            firstSpan = document.getElementById("spanFirst");
+            nextSpan = document.getElementById("spanNext");
+            lastSpan = document.getElementById("spanLast");
+            pageNumSpan = document.getElementById("spanTotalPage");
+            currPageSpan = document.getElementById("spanPageNum");
+
+            numCount = document.getElementById("blocks").rows.length - 1;       //取table的行数作为数据总数量（减去标题行1）
+            alert(numCount)
+            columnsCounts = blockTable.rows[0].cells.length;
+            pageCount = 20;
+            pageNum = parseInt(numCount/pageCount);
+            if(0 != numCount%pageCount){
+                pageNum += 1;
+            }
+
+            firstPage();
+        };
+    </script>
+</head>
+<body align="center">
+<div class="container" align="center" >
+
+    <h2 align="center">历年大陆上映电影总票房排名</h2>
+    <table id="blocks"  class="table table-striped" style="margin-top:25px">
+        <thead>
+            <tr>
+                <th>片名</th>
+                <th>上映年份</th>
+                <th>票房</th>
+            </tr>
+        </thead>
+        <tbody id="target" align="center">
+                {%for item in MlboRank%}
+                <tr>
+                    <td width="200px" align="left">{{item.filmname}}</td>
+                    {%if GivenYear != 0 %}
+                    <td width="70px" align="center">{{item.releaseyear}}</td>
+                    {% else %}
+                    <td width="70px" align="center"><a href="{{item.releaseyear}}">{{item.releaseyear}}</a></td>
+                    {% endif %}
+                    <td width="100px" align="right">{{item.boxoffice}}</td>
+                </tr>
+                {%endfor%}
+        </tbody>
+    </table>
+
+    <div id="pagiDiv" align="right" style="width:1200px">
+        <span id="spanFirst">First</span>&nbsp;&nbsp;
+        <span id="spanPre">Pre</span>&nbsp;&nbsp;
+        <span id="spanNext">Next</span>&nbsp;&nbsp;
+        <span id="spanLast">Last</span>&nbsp;&nbsp;
+        The&nbsp;<span id="spanPageNum"></span>&nbsp;Page/Total&nbsp;<span id="spanTotalPage"></span>&nbsp;Page
+    </div>
+
+</div>
+
+<script>
+        //需求：让tr各行变色，鼠标放入tr中，高亮显示。
+
+        //1.隔行变色。
+        var tbody = document.getElementById("target");
+        var trArr = tbody.children;
+        //循环判断并各行赋值属性（背景色）
+        for(var i=0;i<trArr.length;i++){
+            if(i%2!==0){
+                trArr[i].style.backgroundColor = "#a3a3a3";
+            }else{
+                trArr[i].style.backgroundColor = "#ccc";
+            }
+
+            //鼠标进入高亮显示
+            //难点：鼠标移开的时候要回复原始颜色。
+            //计数器（进入tr之后，立刻记录颜色，然后移开的时候使用记录好的颜色）
+            var color = "";
+            trArr[i].onmouseover = function () {
+                //赋值颜色之前，先记录颜色
+                color = this.style.backgroundColor;
+                this.style.backgroundColor = "#fff";
+            }
+            trArr[i].onmouseout = function () {
+                this.style.backgroundColor = color;
+            }
+        }
+    </script>
+
+</body>
+</html>

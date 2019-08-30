@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>影片票房对比</title>
+    <style>
+        * {
+            padding:0;
+            margin:0;
+            text-align:center;
+        }
+        .wrap {
+            width:500px;
+            margin:10px auto 0;
+        }
+        .wrap1 {
+            width:800px;
+            margin:10px auto 0;
+        }
+        table {
+            border-collapse:collapse;
+            border-spacing:0;
+            border: 1px solid #c0c0c0;
+            width: 500px;
+        }
+        th,
+        td {
+            border: 1px solid #d0d0d0;
+            color: #404060;
+            padding: 10px;
+        }
+        th {
+            background-color:#09c;
+            font: bold 16px "微软雅黑";
+            color: #fff;
+        }
+        td {
+            font:14 px "微软雅黑";
+        }
+        tbody tr {
+            background-color: #f0f0f0;
+            cursor:pointer;
+        }
+        .current {
+            background-color: red!important;
+        }
+
+    </style>
+</head>
+<body style="text-align:center">
+    <h1>影片票房对比</h1>
+    <div>
+    <div id="tester"  class="wrap1" style="width:1200px;height:400px"></div>
+    <div class="wrap">
+        <table style="margin-top:25px" align="right">
+            <thead>
+                <tr>
+                    <th>片名</th>
+                    <th>上映日期</th>
+                    <th>上映天数</th>
+                    <th>当日票房</th>
+                </tr>
+            </thead>
+            <tbody id="target">
+                {%for item in fclist1%}
+                <tr>
+                    <td>{{item.filmname}}</td>
+                    <td>{{item.yearmonthday|date:"Y-m-d"}}</td>
+                    <td>{{item.releasedays|floatformat:"0"}}</td>
+                    <td>{{item.daybo}}</td>
+                </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+    </div>
+    </div>
+<script>
+        //需求：让tr各行变色，鼠标放入tr中，高亮显示。
+        //1.隔行变色。
+        var tbody = document.getElementById("target");
+        var trArr = tbody.children;
+        //循环判断并各行赋值属性（背景色）
+        for(var i=0;i<trArr.length;i++){
+            if(i%2!==0){
+                trArr[i].style.backgroundColor = "#a3a3a3";
+            }else{
+                trArr[i].style.backgroundColor = "#ccc";
+            }
+
+            //鼠标进入高亮显示
+            //难点：鼠标移开的时候要回复原始颜色。
+            //计数器（进入tr之后，立刻记录颜色，然后移开的时候使用记录好的颜色）
+            var color = "";
+            trArr[i].onmouseover = function () {
+                //赋值颜色之前，先记录颜色
+                color = this.style.backgroundColor;
+                this.style.backgroundColor = "#fff";
+            }
+            trArr[i].onmouseout = function () {
+                this.style.backgroundColor = color;
+            }
+        }
+    </script>
+    <script src="../../static/js/plotly-basic.min.js"></script>
+    <script>
+      var obj21 = '{{fclist21|safe}}';
+      var obj31 = '{{fclist31|safe}}';
+      obj21 =eval(obj21);
+      obj31=eval(obj31);
+      x=new Array;
+      y1=new Array;
+      y2=new Array;
+      ymdarray1=new Array;
+      ymdarray2=new Array;
+      for (i in obj21){
+          x[i]=obj21[i].releasedays;
+          y1[i]=obj21[i].daybo;
+          ymdarray1[i]=obj21[i].yearmonthday;
+      }
+      for (i in obj31){
+          y2[i]=obj31[i].daybo;
+          ymdarray2[i]=obj31[i].yearmonthday;
+      }
+        var trace1 = {
+          x: x,
+          y: y1,
+          name: '海王',
+          type: 'scatter',
+          hovertext:ymdarray1
+        };
+
+        var trace2 = {
+          x: x,
+          y: y2,
+          name: '毒液：致命守护者',
+          type: 'scatter',
+          hovertext:ymdarray2
+        };
+
+        var data = [trace1, trace2];
+
+        var layout = {
+          title: '影片票房对比',
+          yaxis: {title: '票房'}
+        };
+
+        Plotly.newPlot('tester', data, layout);
+    </script>
+</body>
+</html>
+

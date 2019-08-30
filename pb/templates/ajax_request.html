@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+{% load static %} <!-- 模板标签加载静态文件路径，也可以改成 load staticfiles -->
+<html>
+<head>
+    <title>HelloDjango</title>
+    <script type="text/javascript" src="http://libs.baidu.com/jquery/1.11.1/jquery.min.js"></script><!-- 这里引入的是百度的 JQuery -->
+    <script type="text/javascript" src="{% static 'js/ajax_request.js' %}"></script> <!-- 我们 get post 请求需要使用的自定义 js -->
+</head>
+<body>
+ <h3>GET 提交数据：</h3>
+    <input type="number" id="num1" />&nbsp;*&nbsp;
+    <input type="number" id="num2" />
+    <button onclick="fun_get();">&nbsp;=&nbsp;</button>
+    <font style="color:red;"><span id="result_get"></span></font>
+    <hr />
+ <script>
+
+function fun_get() {
+    var a = $("#num1").val();
+    console.log(a);
+    var b = $("#num2").val();
+    console.log(b);
+    $.get("/boapp/ajax/get/", { 'a': a, 'b': b }, function(ret){
+        $('#result_get').html(ret);
+    });
+}
+ </script>
+</body>
+</html>

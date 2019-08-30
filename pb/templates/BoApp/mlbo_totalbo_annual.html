@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>中国大陆历年票房信息</title>
+</head>
+<body>
+<!--/{/{}}中调用变量，/{/%%}中调用python代码-->
+    <h1>票房信息</h1>
+    <ul>
+        {%for item in BodyMlboTotalboAnnual%}
+        <li>
+            <a href="../filmborank/{{item.releaseyear}}">{{item.releaseyear}}</a>--{{item.totalboxoffice}}
+        </li>
+        {%endfor%}
+    </ul>
+</body>
+</html>

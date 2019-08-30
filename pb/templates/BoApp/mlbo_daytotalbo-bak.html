@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>每日电影票房大盘</title>
+    <style>
+        * {
+            padding:0;
+            margin:0;
+            text-align:center;
+        }
+        .wrap {
+            width:1200px;
+            margin:10px auto 0;
+        }
+        table {
+            border-collapse:collapse;
+            border-spacing:0;
+            border: 1px solid #c0c0c0;
+            width: 1200px;
+        }
+        th,
+        td {
+            border: 1px solid #d0d0d0;
+            color: #404060;
+            padding: 10px;
+        }
+        th {
+            background-color:#09c;
+            font: bold 16px "微软雅黑";
+            color: #fff;
+        }
+        td {
+            font:14 px "微软雅黑";
+        }
+        tbody tr {
+            background-color: #f0f0f0;
+            cursor:pointer;
+        }
+
+    </style>
+    <script type="text/javascript" src="../../static/js/unf.js"></script>
+    <script type="text/javascript" src="../../static/js/jquery-1.11.1.min.js"></script>
+</head>
+<body>
+    <h1>每日电影票房大盘</h1>
+    <div class="wrap" align="center">
+        <table style="margin-top:25px" align="center">
+            <thead>
+                <tr>
+                    <th>日期</th>
+                    <th>大盘</th>
+                    <th>榜首影片</th>
+                    <th>上映天数</th>
+                    <th>影片日票房</th>
+                    <th>影片总票房</th>
+                    <th>班休</th>
+                    <th>星期</th>
+                    <th>特殊节日</th>
+                    <th>农历</th>
+                    <th>农历月份</th>
+                    <th>农历日</th>
+                </tr>
+            </thead>
+            <tbody id="target">
+                {%for item in givenpage%}
+                <tr>
+                    <td>{{item.yearmonthday|date:"Y-m-d"}}</td>
+                    <td>{{item.totalambo}}</td>
+                    <td>{{item.top1movie}}</td>
+                    <td>{{item.releaseddays}}</td>
+                    <td>{{item.top1moviedaybo}}</td>
+                    <td>{{item.top1movietotalbo}}</td>
+                    <td>{{item.wov}}</td>
+                    <td>{{item.weekday}}</td>
+                    {%if "&" in item.festival %}
+
+                    <td>
+                        <a href="festival=var1" onclick="" id="festival1"></a>
+                        <a href="festival=var2" onclick="" id="festival2"></a>
+                    </td>
+                    <script>
+                        var arr1= new Array();
+                        arr1 = splitstr("{{item.festival}}");
+                        var var1=arr1.shift();
+                        var var2=arr1.shift();
+                        //alert(var1);
+                        //alert(var2);
+                      var tdnum = document.getElementsByTagName("tr");
+                      //alert( tdnum[{{forloop.counter}}].children[0]);
+                      var a1 = tdnum[{{forloop.counter}}].children[8].children[0];
+                      var a2 = tdnum[{{forloop.counter}}].children[8].children[1];
+                      a1.innerText=var1;
+                      a1.href='festival='+var1;
+                      a2.href='festival='+var2;
+                      a2.innerText=var2;
+                      //alert(a1);
+                      //alert(a1.innerText);
+                      //var tempa={{forloop.counter}}-1;
+                      //alert(tempa);
+                      //tdnum[tempa].children[0].innerText =var1;
+                      //document.getElementById("top").innerHTML = 'top message';
+                      //a1.innerText=var1;
+                      //document.getElementById("festival1").href
+
+
+                    </script>
+                    {% else %}
+                    <td><a href="festival={{item.festival}}">{{item.festival}}</a></td>
+                    {% endif %}
+                    <td>{{item.lunarcalendar}}</td>
+                    <td>{{item.lunarcalendarmonth}}</td>
+                    <td>{{item.lunarcalendarday}}</td>
+                   </tr>
+                {%endfor%}
+            </tbody>
+        </table>
+        <span class="step-links">
+            {% if givenpage.has_previous %}
+                <a href="?page={{ givenpage.previous_page_number }}">上页</a>
+            {% endif %}
+
+            <span class="current">
+                第{{ givenpage.number }}页 共{{ givenpage.paginator.num_pages }}页
+            </span>
+
+            {% if givenpage.has_next %}
+                <a href="?page={{ givenpage.next_page_number }}">下页</a>
+                <a href="?page={{ givenpage.paginator.num_pages }}">末页</a>
+            {% endif %}
+        </span>
+    </div><br/><br/><br/>
+<script>
+        //arr1 = splitstr({{item.festival}});
+        //console.log("arr1的值：",arr1);
+
+        //需求：让tr各行变色，鼠标放入tr中，高亮显示。
+
+        //1.隔行变色。
+        var tbody = document.getElementById("target");
+        var trArr = tbody.children;
+        //循环判断并各行赋值属性（背景色）
+        for(var i=0;i<trArr.length;i++){
+            if(i%2!==0){
+                trArr[i].style.backgroundColor = "#a3a3a3";
+            }else{
+                trArr[i].style.backgroundColor = "#ccc";
+            }
+
+            //鼠标进入高亮显示
+            //难点：鼠标移开的时候要回复原始颜色。
+            //计数器（进入tr之后，立刻记录颜色，然后移开的时候使用记录好的颜色）
+            var color = "";
+            trArr[i].onmouseover = function () {
+                //赋值颜色之前，先记录颜色
+                color = this.style.backgroundColor;
+                this.style.backgroundColor = "#fff";
+            }
+            trArr[i].onmouseout = function () {
+                this.style.backgroundColor = color;
+            }
+        }
+    </script>
+</body>
+</html>
+
